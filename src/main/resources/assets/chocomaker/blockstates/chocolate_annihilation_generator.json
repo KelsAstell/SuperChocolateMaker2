@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "chocomaker:block/chocolate_annihilation_generator" },
+    "facing=east": { "model": "chocomaker:block/chocolate_annihilation_generator", "y": 90 },
+    "facing=south": { "model": "chocomaker:block/chocolate_annihilation_generator", "y": 180 },
+    "facing=west": { "model": "chocomaker:block/chocolate_annihilation_generator", "y": 270 }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "chocomaker:flight_charm",
+    "chocomaker:teleport_charm",
+    "chocomaker:reach_charm"
+  ]
+}

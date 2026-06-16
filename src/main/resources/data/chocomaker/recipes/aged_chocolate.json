@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "chocomaker:chocolate"
+    },
+    {
+      "item": "chocomaker:chocolate"
+    },
+    {
+      "item": "minecraft:book"
+    }
+  ],
+  "result": {
+    "item": "chocomaker:aged_chocolate",
+    "count": 2
+  }
+}

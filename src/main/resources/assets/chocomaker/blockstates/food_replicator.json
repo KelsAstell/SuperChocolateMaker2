@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "chocomaker:block/food_replicator" },
+    "facing=east": { "model": "chocomaker:block/food_replicator", "y": 90 },
+    "facing=south": { "model": "chocomaker:block/food_replicator", "y": 180 },
+    "facing=west": { "model": "chocomaker:block/food_replicator", "y": 270 }
+  }
+}

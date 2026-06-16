@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "chocomaker:altar_core",
+    "chocomaker:eternal_beacon",
+    "chocomaker:food_replicator",
+    "chocomaker:chocolate_mixer"
+  ]
+}

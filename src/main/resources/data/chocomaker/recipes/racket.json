@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " CA",
+    " SC",
+    "S  "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:cobweb"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "A": {
+      "item": "chocomaker:ahoge"
+    }
+  },
+  "result": {
+    "item": "chocomaker:racket",
+    "count": 1
+  }
+}

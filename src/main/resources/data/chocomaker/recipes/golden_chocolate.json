@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GG",
+    "CC"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "C": {
+      "item": "chocomaker:chocolate"
+    }
+  },
+  "result": {
+    "item": "chocomaker:golden_chocolate",
+    "count": 1
+  }
+}

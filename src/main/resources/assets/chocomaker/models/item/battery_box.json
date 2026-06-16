@@ -1,0 +1,9 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "chocomaker:item/battery_box_0"
+  },
+  "overrides": [
+    {"predicate": {"chocomaker:style": 1}, "model": "chocomaker:item/battery_box_1"}
+  ]
+}

@@ -1,0 +1,103 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+group = 'com.emowolf'
+version = '1.0.0'
+
+jar {
+    archiveBaseName.set("SuperChocolateMaker2")
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("")
+    // Reproducible builds: strip timestamps
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    // Exclude unnecessary files from the jar
+    exclude '**/*.md', '**/*.txt', '**/Thumbs.db', '**/.DS_Store'
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            mods {
+                chocomaker { source sourceSets.main }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            mods {
+                chocomaker { source sourceSets.main }
+            }
+        }
+        data {
+            workingDirectory project.file('run')
+            args '--mod', 'chocomaker', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                chocomaker { source sourceSets.main }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://maven.blamejared.com" }
+    maven { url = 'https://maven.minecraftforge.net' }
+    maven {
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/repository/maven-public/'
+    }
+    maven {
+        name = 'Curios API'
+        url = 'https://maven.theillusivec4.top/'
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:1.20.1-47.2.0"
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.14.1+1.20.1")
+    // JEI: compileOnly for recipe display integration
+    // jei-1.20.1-common-api contains the main API (IModPlugin, IRecipeCategory, etc.)
+    // jei-1.20.1-forge-api adds ForgeTypes; transitive from common-api
+    compileOnly fg.deobf("mezz.jei:jei-1.20.1-common-api:15.20.0.129")
+    compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge-api:15.20.0.129")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.20.1-forge:15.20.0.129")
+    // Patchouli: mixin uses SRG names incompatible with official-mappings dev env
+    // Guide book data files remain; users install Patchouli at runtime in production
+}
+
+mixin {
+    add sourceSets.main, 'mixins.chocomaker.refmap.json'
+    config 'mixins.chocomaker.json'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') {
+        expand 'file': [ 'jarVersion': project.version ]
+    }
+}
+
+
+import org.gradle.api.tasks.compile.JavaCompile
+tasks.withType(JavaCompile).configureEach { JavaCompile jc ->
+    jc.source = jc.source.filter { file ->
+        def s = file.toString().replace('\\','/')
+        return !s.contains("${buildDir.toString().replace('\\','/')}/tmp")
+    }
+}
