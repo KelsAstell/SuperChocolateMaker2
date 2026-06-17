@@ -73,7 +73,6 @@ public class MachineGunItem extends Item {
     private static final String TAG_BEAM_CHARGE = "BeamCharge";
 
     /** 客户端潜行计时器（纯客户端维护，仅用于 FOV 缩放） */
-    @OnlyIn(Dist.CLIENT)
     private static int clientSneakTicks = 0;
 
     // ==================== 构造 ====================
