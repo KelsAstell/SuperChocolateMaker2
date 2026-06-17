@@ -142,6 +142,7 @@
   "item.chocomaker.mixed_chocolate.poison": "§cPoisonous",
   "item.chocomaker.mixed_chocolate.explosion": "§cExplosive",
   "item.chocomaker.mixed_chocolate.potion_effects": "§dPotion Effects: %s",
+    "item.chocomaker.mixed_chocolate.mix_level": "§6Mix Level: %s",
 
   "item.chocomaker.battery_box": "Battery Box",
   "item.chocomaker.battery_box.desc": "§7Equipped in belt slot, outputs FE energy after absorbing chocolate and chocolate batteries",

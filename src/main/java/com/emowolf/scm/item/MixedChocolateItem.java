@@ -22,6 +22,14 @@ import java.util.List;
  */
 public class MixedChocolateItem extends Item {
 
+    /** 混合次数——每用混合巧克力做基底重混一次 +1，控制手持模型大小 */
+    public static final String TAG_MIX_LEVEL = "mix_level";
+
+    /** 每次混合增加的手持模型缩放比例 */
+    public static final float SCALE_PER_LEVEL = 0.5f;
+    /** 最大缩放上限（20 次重混达到） */
+    public static final float MAX_SCALE = 11.0f;
+
     public MixedChocolateItem() {
         super(new Properties()
                 .stacksTo(64)
@@ -118,6 +126,26 @@ public class MixedChocolateItem extends Item {
                 ListTag effectsList = tag.getList("potion_effects", Tag.TAG_COMPOUND);
                 tooltipComponents.add(Component.translatable("item.chocomaker.mixed_chocolate.potion_effects", effectsList.size()));
             }
+
+            // 显示混合次数
+            int mixLevel = tag.getInt(TAG_MIX_LEVEL);
+            if (mixLevel > 0) {
+                tooltipComponents.add(Component.translatable("item.chocomaker.mixed_chocolate.mix_level", mixLevel));
+            }
         }
+    }
+
+    /** 读取 ItemStack 的混合次数 */
+    public static int getMixLevel(ItemStack stack) {
+        if (stack.hasTag()) {
+            return stack.getTag().getInt(TAG_MIX_LEVEL);
+        }
+        return 0;
+    }
+
+    /** 根据混合次数计算手持模型缩放比例 */
+    public static float getScale(ItemStack stack) {
+        int level = getMixLevel(stack);
+        return Math.min(1.0f + level * SCALE_PER_LEVEL, MAX_SCALE);
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -86,7 +87,7 @@ public class ChocolateMixerBlockEntity extends BlockEntity implements MenuProvid
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             if (slot == CHOCOLATE_SLOT) {
-                return stack.is(SCMItems.CHOCOLATE.get());
+                return stack.is(SCMItems.CHOCOLATE.get()) || stack.is(SCMItems.MIXED_CHOCOLATE.get());
             }
             if (slot >= FIRST_INGREDIENT_SLOT && slot <= LAST_INGREDIENT_SLOT) {
                 // Accept any item that is not chocolate and not mixed chocolate
@@ -200,7 +201,16 @@ public class ChocolateMixerBlockEntity extends BlockEntity implements MenuProvid
         ItemStack outputStack = inventory.getStackInSlot(OUTPUT_SLOT);
         if (!outputStack.isEmpty()) return false;
 
-        // Calculate nutrition and ingredient names
+        // Determine if the base chocolate is mixed chocolate
+        boolean isBaseMixedChocolate = chocolateStack.is(SCMItems.MIXED_CHOCOLATE.get());
+
+        // Read old mix_level BEFORE shrink (shrink empties the stack → hasTag() becomes false)
+        int oldMixLevel = 0;
+        if (isBaseMixedChocolate && chocolateStack.hasTag()) {
+            oldMixLevel = chocolateStack.getTag().getInt("mix_level");
+        }
+
+        // Start from base values (inherit from mixed chocolate if applicable)
         float totalNutrition = BASE_NUTRITION;
         float totalSaturation = BASE_SATURATION;
         List<String> ingredientNames = new ArrayList<>();
@@ -208,6 +218,28 @@ public class ChocolateMixerBlockEntity extends BlockEntity implements MenuProvid
         boolean hasPoison = false;
         boolean hasExplosion = false;
         List<CompoundTag> potionEffects = new ArrayList<>();
+
+        // If base is mixed chocolate, inherit its NBT data
+        if (isBaseMixedChocolate && chocolateStack.hasTag()) {
+            CompoundTag baseTag = chocolateStack.getTag();
+            totalNutrition = baseTag.getInt("mixed_nutrition");
+            totalSaturation = baseTag.getFloat("mixed_saturation");
+            if (totalNutrition <= 0) totalNutrition = BASE_NUTRITION;
+            if (totalSaturation <= 0) totalSaturation = BASE_SATURATION;
+
+            hasPoison = baseTag.getBoolean("has_poison");
+            hasExplosion = baseTag.getBoolean("has_explosion");
+
+            if (baseTag.contains("potion_effects")) {
+                ListTag baseEffects = baseTag.getList("potion_effects", Tag.TAG_COMPOUND);
+                for (int i = 0; i < baseEffects.size(); i++) {
+                    potionEffects.add(baseEffects.getCompound(i));
+                }
+            }
+
+            // Prepend "混合巧克力" to ingredient names
+            ingredientNames.add(Component.translatable("item.chocomaker.mixed_chocolate").getString());
+        }
 
         for (ItemStack ingredient : ingredients) {
             String name = ingredient.getHoverName().getString();
@@ -259,6 +291,10 @@ public class ChocolateMixerBlockEntity extends BlockEntity implements MenuProvid
         tag.putInt("mixed_nutrition", Math.round(totalNutrition));
         tag.putFloat("mixed_saturation", totalSaturation);
         tag.putString("ingredients", ingredientsStr);
+
+        // Always set mix level: first mix = 0, each re-mix inherits +1
+        tag.putInt("mix_level", isBaseMixedChocolate ? oldMixLevel + 1 : 0);
+
         if (hasPoison) tag.putBoolean("has_poison", true);
         if (hasExplosion) tag.putBoolean("has_explosion", true);
         if (!potionEffects.isEmpty()) {
@@ -285,8 +321,17 @@ public class ChocolateMixerBlockEntity extends BlockEntity implements MenuProvid
             return;
         }
 
+        // Start from base values, inherit from mixed chocolate if applicable
         float nutrition = BASE_NUTRITION;
         float saturation = BASE_SATURATION;
+
+        if (chocolateStack.is(SCMItems.MIXED_CHOCOLATE.get()) && chocolateStack.hasTag()) {
+            CompoundTag baseTag = chocolateStack.getTag();
+            nutrition = baseTag.getInt("mixed_nutrition");
+            saturation = baseTag.getFloat("mixed_saturation");
+            if (nutrition <= 0) nutrition = BASE_NUTRITION;
+            if (saturation <= 0) saturation = BASE_SATURATION;
+        }
 
         for (int i = FIRST_INGREDIENT_SLOT; i <= LAST_INGREDIENT_SLOT; i++) {
             ItemStack ingredient = inventory.getStackInSlot(i);

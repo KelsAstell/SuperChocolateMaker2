@@ -142,6 +142,7 @@
   "item.chocomaker.mixed_chocolate.poison": "§c有毒",
   "item.chocomaker.mixed_chocolate.explosion": "§c会爆炸",
   "item.chocomaker.mixed_chocolate.potion_effects": "§d药水效果: %s个",
+    "item.chocomaker.mixed_chocolate.mix_level": "§6混合次数: %s",
 
   "item.chocomaker.battery_box": "电池盒",
   "item.chocomaker.battery_box.desc": "§7佩戴在腰带栏位，吸收巧克力和巧克力电池后持续输出FE能量",

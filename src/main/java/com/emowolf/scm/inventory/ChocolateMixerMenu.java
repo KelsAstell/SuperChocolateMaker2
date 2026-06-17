@@ -29,11 +29,11 @@ public class ChocolateMixerMenu extends AbstractContainerMenu {
 
         ItemStackHandler inv = be.getInventory();
 
-        // Chocolate input slot (slot 0)
+        // Chocolate input slot (slot 0) — accepts chocolate or mixed chocolate
         addSlot(new SlotItemHandler(inv, ChocolateMixerBlockEntity.CHOCOLATE_SLOT, 44, 25) {
             @Override
             public boolean mayPlace(@NotNull ItemStack stack) {
-                return stack.is(SCMItems.CHOCOLATE.get());
+                return stack.is(SCMItems.CHOCOLATE.get()) || stack.is(SCMItems.MIXED_CHOCOLATE.get());
             }
         });
 
@@ -132,8 +132,8 @@ public class ChocolateMixerMenu extends AbstractContainerMenu {
             }
         } else {
             // Moving from player inventory to machine slots
-            // Try chocolate slot first, then ingredient slots
-            if (stack.is(SCMItems.CHOCOLATE.get())) {
+            // Try chocolate slot first (chocolate or mixed chocolate), then ingredient slots
+            if (stack.is(SCMItems.CHOCOLATE.get()) || stack.is(SCMItems.MIXED_CHOCOLATE.get())) {
                 if (!moveItemStackTo(stack, ChocolateMixerBlockEntity.CHOCOLATE_SLOT,
                         ChocolateMixerBlockEntity.CHOCOLATE_SLOT + 1, false)) {
                     if (!moveItemStackTo(stack, ChocolateMixerBlockEntity.FIRST_INGREDIENT_SLOT,
@@ -141,13 +141,11 @@ public class ChocolateMixerMenu extends AbstractContainerMenu {
                         return ItemStack.EMPTY;
                     }
                 }
-            } else if (!stack.is(SCMItems.MIXED_CHOCOLATE.get())) {
+            } else {
                 if (!moveItemStackTo(stack, ChocolateMixerBlockEntity.FIRST_INGREDIENT_SLOT,
                         ChocolateMixerBlockEntity.LAST_INGREDIENT_SLOT + 1, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else {
-                return ItemStack.EMPTY;
             }
         }
 
