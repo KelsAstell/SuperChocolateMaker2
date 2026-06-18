@@ -88,8 +88,12 @@
   "item.chocomaker.enchanted_golden_chocolate.desc": "Grants Regeneration, Absorption, Fire Resistance, Resistance and Imaginary Resistance",
 
   "item.chocomaker.machine_gun": "Cocoa Machine Gun",
-  "item.chocomaker.machine_gun.desc": "§7Hold right-click to rapid fire. Sneak to scope (high zoom) + right-click fires beam, damage scales with charge",
-  "item.chocomaker.machine_gun.desc2": "§cBeam deals true damage to mobs",
+  "item.chocomaker.machine_gun.desc": "§7§l[Right Click] §r§7Hold to rapid-fire arrows",
+  "item.chocomaker.machine_gun.desc2": "§7§l[Sneak] §r§7Consume energy to charge + scope",
+  "item.chocomaker.machine_gun.desc3": "§7§l[Sneak+Right Click] §r§7Laser beam (damage scales with charge)",
+  "item.chocomaker.machine_gun.desc4": "§6§l[Sneak+Left Click at full charge] §r§6Imaginary beam (bypasses Totem of Undying etc.)",
+  "item.chocomaker.machine_gun.desc5": "§cBeam deals true damage and reduces max health",
+  "item.chocomaker.machine_gun.desc6": "§7§oAuto-absorbs chocolate/batteries on ground while held",
   "item.chocomaker.machine_gun.energy": "§7Energy: §e%s",
   "item.chocomaker.machine_gun.charge": "§7Charge: §c%s (§4+%s dmg§c)",
   "msg.chocomaker.machine_gun.no_energy": "§cInsufficient energy!",
@@ -175,5 +179,7 @@
   "jei.chocomaker.ritual.flight_charm.desc": "Produces Flight Charm trinket",
   "jei.chocomaker.ritual.villager.desc": "Summons a villager",
   "jei.chocomaker.ritual.charged_creeper.desc": "Summons a Charged Creeper",
-  "jei.chocomaker.ritual.battery_box.desc": "Produces Chocolate Battery Box"
+  "jei.chocomaker.ritual.battery_box.desc": "Produces Chocolate Battery Box",
+  "jei.chocomaker.ritual.machine_gun.desc": "Produces Cocoa Machine Gun",
+  "jei.chocomaker.ritual.choco_gen.desc": "Produces Chocolate Annihilation Generator"
 }

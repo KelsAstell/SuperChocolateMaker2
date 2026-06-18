@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    "GBG",
+    "GBG"
+  ],
+  "key": {
+    "B": {
+      "item": "chocomaker:battery_box"
+    },
+    "R": {
+      "item": "chocomaker:racket"
+    },
+    "G": {
+      "item": "minecraft:gold_block"
+    }
+  },
+  "result": {
+    "item": "chocomaker:reach_charm",
+    "count": 1
+  }
+}

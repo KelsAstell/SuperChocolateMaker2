@@ -45,11 +45,11 @@ public class DimensionalShieldHandler {
 
         // 判定即死攻击：极高伤害（模组秒杀）或原版即死类型
         if (isInstantKillAttempt(event, player)) {
-            double halved = shieldValue / 2.0;
-            DimensionalShieldItem.setShieldValue(shield, halved);
+            double before = shieldValue;
+            double halved = DimensionalShieldItem.halveAndGet(shield);
             event.setCanceled(true);
             player.sendSystemMessage(Component.translatable("msg.chocomaker.dimensional_shield.instant_kill_blocked",
-                    DimensionalShieldItem.formatCompact(shieldValue - halved)));
+                    DimensionalShieldItem.formatCompact(before - halved)));
             return;
         }
 
@@ -100,12 +100,12 @@ public class DimensionalShieldHandler {
         if (shieldValue <= 0) return;
 
         // 护盾值 > 0 却触发死亡 → setHealth(0) 等绕过伤害系统的致死手段
-        double halved = shieldValue / 2.0;
-        DimensionalShieldItem.setShieldValue(shield, halved);
+        double before = shieldValue;
+        double halved = DimensionalShieldItem.halveAndGet(shield);
         event.setCanceled(true);
         player.setHealth(1.0f);
         player.sendSystemMessage(Component.translatable("msg.chocomaker.dimensional_shield.instant_kill_blocked",
-                DimensionalShieldItem.formatCompact(shieldValue - halved)));
+                DimensionalShieldItem.formatCompact(before - halved)));
     }
 
     // ========== 巧克力电池拾取 ==========

@@ -163,6 +163,22 @@ public class SCMJeiPlugin implements IModPlugin {
                         Blocks.REDSTONE_BLOCK,
                         new ItemStack(SCMItems.BATTERY_BOX.get()),
                         Component.translatable("jei.chocomaker.ritual.battery_box.desc")
+                ),
+
+                // ── 14) 可可机枪 ──
+                new RitualRecipe(
+                        SCMItems.AHOGE.get(),
+                        Blocks.CRYING_OBSIDIAN,
+                        new ItemStack(SCMItems.MACHINE_GUN.get()),
+                        Component.translatable("jei.chocomaker.ritual.machine_gun.desc")
+                ),
+
+                // ── 15) 巧克力湮灭发电机 ──
+                new RitualRecipe(
+                        SCMItems.AHOGE.get(),
+                        Blocks.WAXED_COPPER_BLOCK,
+                        new ItemStack(SCMBlocks.CHOCOLATE_ANNIHILATION_GENERATOR_ITEM.get()),
+                        Component.translatable("jei.chocomaker.ritual.choco_gen.desc")
                 )
         );
     }

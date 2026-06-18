@@ -107,6 +107,12 @@ public class RitualHandler {
     // 13) 电池盒仪式 —— 祭品：呆毛，催化剂：红石块
     private static final Block RECIPE_BATTERY_BOX_CATALYST = Blocks.REDSTONE_BLOCK;
 
+    // 14) 可可机枪仪式 —— 祭品：呆毛，催化剂：哭泣的黑曜石
+    private static final Block RECIPE_MACHINE_GUN_CATALYST = Blocks.CRYING_OBSIDIAN;
+
+    // 15) 巧克力湮灭发电机仪式 —— 祭品：呆毛，催化剂：涂蜡铜块
+    private static final Block RECIPE_CHOCO_GEN_CATALYST = Blocks.WAXED_COPPER_BLOCK;
+
 
     /* ========== 巧克力献祭系统 ========== */
 
@@ -379,6 +385,26 @@ public class RitualHandler {
             handled = true;
             attemptRitual(serverLevel, itemEntity, itemPos, player, basePos, RECIPE_BATTERY_BOX_CATALYST,
                     () -> performBatteryBoxRitual(serverLevel, itemEntity, itemPos, player, basePos));
+            return;
+        }
+
+        // ── 14) 可可机枪仪式 ──────────────────────────────────
+        if (stack.is(ahoge())
+                && checkCatalystLayer(level, catalystY, RECIPE_MACHINE_GUN_CATALYST)
+                && checkAltarPattern5x5(level, basePos)) {
+            handled = true;
+            attemptRitual(serverLevel, itemEntity, itemPos, player, basePos, RECIPE_MACHINE_GUN_CATALYST,
+                    () -> performMachineGunRitual(serverLevel, itemEntity, itemPos, player, basePos));
+            return;
+        }
+
+        // ── 15) 巧克力湮灭发电机仪式 ──────────────────────────
+        if (stack.is(ahoge())
+                && checkCatalystLayer(level, catalystY, RECIPE_CHOCO_GEN_CATALYST)
+                && checkAltarPattern5x5(level, basePos)) {
+            handled = true;
+            attemptRitual(serverLevel, itemEntity, itemPos, player, basePos, RECIPE_CHOCO_GEN_CATALYST,
+                    () -> performChocoGenRitual(serverLevel, itemEntity, itemPos, player, basePos));
             return;
         }
 
@@ -1185,6 +1211,72 @@ public class RitualHandler {
         for (int i = 0; i < 40; i++) {
             level.sendParticles(ParticleTypes.END_ROD, cx, cy + i * 0.2, cz, 1, 0, 0, 0, 0.0);
         }
+    }
+
+    /* ========== 可可机枪仪式 ========== */
+
+    /**
+     * 可可机枪仪式成功回调：消耗呆毛 + 9个哭泣的黑曜石催化剂，生成可可机枪
+     */
+    private static void performMachineGunRitual(ServerLevel level, ItemEntity itemEntity,
+                                                  BlockPos itemPos, Player player, BlockPos basePos) {
+
+        // 消耗祭品
+        itemEntity.discard();
+
+        // 移除催化剂层
+        removeCatalystLayer(level, basePos.above());
+
+        // 清理祭坛状态
+        cleanupAltarState(level, basePos);
+
+        // 生成可可机枪（悬浮于祭坛上方4格）
+        ItemStack machineGunStack = new ItemStack(SCMItems.MACHINE_GUN.get());
+        spawnRitualResultItem(level, basePos, machineGunStack, 60);
+
+        double cx = itemPos.getX() + 0.5, cy = itemPos.getY() + 0.5, cz = itemPos.getZ() + 0.5;
+
+        // 成功音效
+        level.playSound(null, cx, cy, cz, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 0.8F, 1.2F);
+        level.playSound(null, cx, cy, cz, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS, 1.0F, 0.8F);
+        level.playSound(null, cx, cy, cz, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+        // 粒子效果
+        spawnAltarRitualParticles(level, itemPos);
+        sendRitualAnimation(player, basePos);
+    }
+
+    /* ========== 巧克力湮灭发电机仪式 ========== */
+
+    /**
+     * 巧克力湮灭发电机仪式成功回调：消耗呆毛 + 9个涂蜡铜块催化剂，生成巧克力湮灭发电机
+     */
+    private static void performChocoGenRitual(ServerLevel level, ItemEntity itemEntity,
+                                                BlockPos itemPos, Player player, BlockPos basePos) {
+
+        // 消耗祭品
+        itemEntity.discard();
+
+        // 移除催化剂层
+        removeCatalystLayer(level, basePos.above());
+
+        // 清理祭坛状态
+        cleanupAltarState(level, basePos);
+
+        // 生成巧克力湮灭发电机（悬浮于祭坛上方4格）
+        ItemStack chocoGenStack = new ItemStack(SCMBlocks.CHOCOLATE_ANNIHILATION_GENERATOR_ITEM.get());
+        spawnRitualResultItem(level, basePos, chocoGenStack, 60);
+
+        double cx = itemPos.getX() + 0.5, cy = itemPos.getY() + 0.5, cz = itemPos.getZ() + 0.5;
+
+        // 成功音效
+        level.playSound(null, cx, cy, cz, SoundEvents.END_PORTAL_SPAWN, SoundSource.BLOCKS, 0.8F, 1.2F);
+        level.playSound(null, cx, cy, cz, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.BLOCKS, 1.0F, 0.8F);
+        level.playSound(null, cx, cy, cz, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+        // 粒子效果
+        spawnAltarRitualParticles(level, itemPos);
+        sendRitualAnimation(player, basePos);
     }
 
     /* ========== 产物重力恢复调度 ========== */

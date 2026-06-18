@@ -61,7 +61,7 @@ public class FoodReplicatorBlockEntity extends BlockEntity implements MenuProvid
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             if (slot == INPUT_SLOT) {
-                FoodProperties food = stack.getItem().getFoodProperties();
+                FoodProperties food = stack.getItem().getFoodProperties(stack, null);
                 return food != null && food.getSaturationModifier() > 0;
             }
             // Output slot rejects all manual insertion
@@ -155,7 +155,7 @@ public class FoodReplicatorBlockEntity extends BlockEntity implements MenuProvid
             progress = 0;
             return;
         }
-        FoodProperties food = input.getItem().getFoodProperties();
+        FoodProperties food = input.getItem().getFoodProperties(input, null);
         if (food == null || food.getSaturationModifier() <= 0) {
             maxProgress = 0;
             progress = 0;
@@ -192,7 +192,7 @@ public class FoodReplicatorBlockEntity extends BlockEntity implements MenuProvid
             return;
         }
 
-        FoodProperties food = input.getItem().getFoodProperties();
+        FoodProperties food = input.getItem().getFoodProperties(input, null);
         if (food == null || food.getSaturationModifier() <= 0) {
             if (be.progress > 0) {
                 be.progress = 0;

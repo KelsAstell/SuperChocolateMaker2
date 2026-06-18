@@ -30,6 +30,8 @@ public class ReachCharmItem extends Item implements ICurioItem {
     private static final double BASE_BONUS = 0.1;
     /** 每个金巧克力提供的额外加成 */
     private static final double GOLDEN_CHOCOLATE_BONUS = 0.1;
+    /** 总加成上限 */
+    private static final double MAX_BONUS = 6.0;
 
     public ReachCharmItem(Properties properties) {
         super(properties);
@@ -93,7 +95,7 @@ public class ReachCharmItem extends Item implements ICurioItem {
      */
     public static double getTotalBonus(ItemStack stack) {
         if (!stack.is(SCMItems.REACH_CHARM.get())) return 0.0;
-        return BASE_BONUS + stack.getOrCreateTag().getDouble(TAG_BONUS);
+        return Math.min(BASE_BONUS + stack.getOrCreateTag().getDouble(TAG_BONUS), MAX_BONUS);
     }
 
     /**
@@ -105,7 +107,7 @@ public class ReachCharmItem extends Item implements ICurioItem {
     }
 
     /**
-     * 吸收金巧克力，增加攻击距离加成。无上限。
+     * 吸收金巧克力，增加攻击距离加成。总加成上限为 {@value #MAX_BONUS}。
      * @param charm    护符 ItemStack
      * @param goldenChocolate 金巧克力 ItemStack
      * @return 实际吸收的数量
@@ -117,7 +119,15 @@ public class ReachCharmItem extends Item implements ICurioItem {
         int count = goldenChocolate.getCount();
         CompoundTag tag = charm.getOrCreateTag();
         double currentBonus = tag.getDouble(TAG_BONUS);
-        tag.putDouble(TAG_BONUS, currentBonus + count * GOLDEN_CHOCOLATE_BONUS);
+        double nextBonus = currentBonus + count * GOLDEN_CHOCOLATE_BONUS;
+        if (nextBonus > MAX_BONUS - BASE_BONUS) {
+            // 计算实际可吸收的数量
+            int maxAbsorbCount = (int)((MAX_BONUS - BASE_BONUS - currentBonus) / GOLDEN_CHOCOLATE_BONUS);
+            if (maxAbsorbCount <= 0) return 0;
+            count = Math.min(count, maxAbsorbCount);
+            nextBonus = currentBonus + count * GOLDEN_CHOCOLATE_BONUS;
+        }
+        tag.putDouble(TAG_BONUS, nextBonus);
         goldenChocolate.shrink(count);
         return count;
     }

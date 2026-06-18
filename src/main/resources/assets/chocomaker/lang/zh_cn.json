@@ -88,8 +88,12 @@
   "item.chocomaker.enchanted_golden_chocolate.desc": "食用后获得生命恢复、伤害吸收、抗火、抗性提升及虚数抵抗效果",
 
   "item.chocomaker.machine_gun": "可可机枪",
-  "item.chocomaker.machine_gun.desc": "§7按住右键连射；潜行开镜（高倍瞄准）+右键发射光束，伤害与蓄力能量成正比",
-  "item.chocomaker.machine_gun.desc2": "§c光束会对生物造成真实伤害",
+  "item.chocomaker.machine_gun.desc": "§7§l[右键] §r§7按住连射箭矢",
+  "item.chocomaker.machine_gun.desc2": "§7§l[潜行] §r§7消耗能量蓄力 + 开镜瞄准",
+  "item.chocomaker.machine_gun.desc3": "§7§l[潜行+右键] §r§7发射光束（伤害与蓄力能量成正比）",
+  "item.chocomaker.machine_gun.desc4": "§6§l[潜行+满蓄左键] §r§6发射穿透光束（无视不死图腾等防御）",
+  "item.chocomaker.machine_gun.desc5": "§c光束造成真实伤害，削减目标生命上限",
+  "item.chocomaker.machine_gun.desc6": "§7§o手持时自动吸收地上的巧克力/电池补充能量",
   "item.chocomaker.machine_gun.energy": "§7能量: §e%s",
   "item.chocomaker.machine_gun.charge": "§7蓄力: §c%s (§4+%s伤害§c)",
   "msg.chocomaker.machine_gun.no_energy": "§c能量不足！",
@@ -175,5 +179,7 @@
   "jei.chocomaker.ritual.flight_charm.desc": "产出飞行护符",
   "jei.chocomaker.ritual.villager.desc": "生成一只村民",
   "jei.chocomaker.ritual.charged_creeper.desc": "生成闪电苦力怕",
-  "jei.chocomaker.ritual.battery_box.desc": "产出巧克力电池盒"
+  "jei.chocomaker.ritual.battery_box.desc": "产出巧克力电池盒",
+  "jei.chocomaker.ritual.machine_gun.desc": "产出可可机枪",
+  "jei.chocomaker.ritual.choco_gen.desc": "产出巧克力湮灭发电机"
 }

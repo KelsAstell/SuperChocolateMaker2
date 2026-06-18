@@ -27,9 +27,12 @@ public class DimensionalShieldItem extends Item implements ICurioItem {
     public static final double BATTERY_REGEN_BONUS = 0.1;
     public static final double MAX_REGEN_RATE = Integer.MAX_VALUE - 1;
 
+    /** 护盾值安全下限：低于此阈值时即死拦截后直接归零，防止 double 下溢永不归零 */
+    public static final double MIN_SHIELD_THRESHOLD = 1.0;
+
     /** 负载上限 */
     public static final int MAX_LOAD = 256;
-    /** 负载衰减间隔（tick），每 2 秒衰减 1 点 */
+    /** 负载衰减间隔（tick），每 3 秒衰减 1 点 */
     private static final int LOAD_DECAY_INTERVAL = 60;
     /** 连续攻击叠加负载的窗口时间（tick），超过此时间未受击则不叠加 */
     private static final int COMBO_WINDOW_TICKS = 100;
@@ -244,5 +247,24 @@ public class DimensionalShieldItem extends Item implements ICurioItem {
      */
     public static double calcExtraDrain(double damage, int load) {
         return damage * load;
+    }
+
+    /**
+     * 将护盾值折半（即死拦截消耗），并写入 NBT。
+     * 若折半后低于 {@link #MIN_SHIELD_THRESHOLD} 安全下限则直接归零。
+     *
+     * @param stack 护盾物品
+     * @return 折半后的护盾值（可能为 0 表示耗尽）
+     */
+    public static double halveAndGet(ItemStack stack) {
+        if (stack == null) return 0;
+        double value = getShieldValue(stack);
+        if (value <= 0) return 0;
+        double halved = value / 2.0;
+        if (halved < MIN_SHIELD_THRESHOLD) {
+            halved = 0;
+        }
+        setShieldValue(stack, halved);
+        return halved;
     }
 }

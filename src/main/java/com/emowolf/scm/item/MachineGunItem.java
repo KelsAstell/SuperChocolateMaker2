@@ -1,6 +1,7 @@
 package com.emowolf.scm.item;
 
 import com.emowolf.scm.SCM;
+import com.emowolf.scm.network.SCMNetwork;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -29,6 +30,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -102,7 +104,7 @@ public class MachineGunItem extends Item {
                 return InteractionResultHolder.fail(stack);
             }
 
-            fireBeam(level, player, beamCharge);
+            fireBeam(level, player, beamCharge, false);
             setBeamCharge(stack, 0);
             playBeamSound(level, player);
             return InteractionResultHolder.consume(stack);
@@ -187,7 +189,7 @@ public class MachineGunItem extends Item {
     /**
      * 发射光束：对视线沿途所有生物造成伤害，伤害量由 beamCharge 决定。
      */
-    private void fireBeam(Level level, Player player, long beamCharge) {
+    public static void fireBeam(Level level, Player player, long beamCharge, boolean isFullCharge) {
         double damage = beamCharge * BEAM_DAMAGE_PER_ENERGY;
         Vec3 start = player.getEyePosition();
         Vec3 look = player.getLookAngle();
@@ -222,7 +224,7 @@ public class MachineGunItem extends Item {
                     living.hurt(level.damageSources().playerAttack(player), (float) damage);
                 } else {
                     // 对非玩家生物使用真实伤害（削减血量上限）
-                    applyTrueDamage(living, player, damage);
+                    applyTrueDamage(living, player, damage, isFullCharge);
                 }
             }
         }
@@ -234,7 +236,7 @@ public class MachineGunItem extends Item {
     /**
      * 沿光束路径生成粒子特效
      */
-    private void spawnBeamParticles(Level level, Vec3 start, Vec3 end) {
+    private static void spawnBeamParticles(Level level, Vec3 start, Vec3 end) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         Vec3 dir = end.subtract(start);
         double length = dir.length();
@@ -265,13 +267,28 @@ public class MachineGunItem extends Item {
      * 对目标施加真实伤害：削减血量上限。
      * 若伤害量超过目标血量上限，则直接视为玩家击杀。
      * 对玩家无效（调用前已过滤）。
+     * <p>
+     * 满蓄力时使用 {@link Entity#remove(Entity.RemovalReason)} 直接移除实体，
+     * 穿透 LivingHurtEvent（Draconic Evolution / Avaritia 拦截层）和
+     * LivingDeathEvent（不死图腾 / Corail Tombstone 拦截层）。
      */
-    private void applyTrueDamage(LivingEntity target, Player attacker, double damage) {
+    private static void applyTrueDamage(LivingEntity target, Player attacker, double damage, boolean isFullCharge) {
         double maxHealth = target.getMaxHealth();
         double newMaxHealth = Math.max(1.0, maxHealth - damage);
 
         // 削减血量上限
         target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(newMaxHealth);
+
+        if (isFullCharge) {
+            // 满蓄力：先走正常死亡流程以掉落战利品/经验，
+            // 若被不死图腾等拦截则强制移除实体
+            target.setHealth(0);
+            target.die(target.level().damageSources().playerAttack(attacker));
+            if (target.isAlive()) {
+                target.remove(Entity.RemovalReason.KILLED);
+            }
+            return;
+        }
 
         if (damage >= maxHealth) {
             // 真实伤害超过血量上限，直接击杀（视为玩家击杀）
@@ -287,7 +304,27 @@ public class MachineGunItem extends Item {
         }
     }
 
-    private void playBeamSound(Level level, Player player) {
+    /**
+     * 左键攻击实体时：若潜行且满蓄力，发射穿透光束（替代近战攻击）。
+     * <p>
+     * 客户端返回 true 取消挥臂动画；服务端发射光束并取消近战伤害。
+     */
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
+        if (!player.isCrouching()) return false;
+        long beamCharge = getBeamCharge(stack);
+        if (beamCharge < MAX_BEAM_CHARGE) return false;
+
+        if (player.level().isClientSide) return true;
+
+        // 满蓄力左键：发射穿透光束
+        fireBeam(player.level(), player, beamCharge, true);
+        setBeamCharge(stack, 0);
+        playBeamSound(player.level(), player);
+        return true;
+    }
+
+    public static void playBeamSound(Level level, Player player) {
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0f, 0.8f);
     }
@@ -412,6 +449,11 @@ public class MachineGunItem extends Item {
         super.appendHoverText(stack, level, tooltip, isAdvanced);
         tooltip.add(Component.translatable("item.chocomaker.machine_gun.desc"));
         tooltip.add(Component.translatable("item.chocomaker.machine_gun.desc2"));
+        tooltip.add(Component.translatable("item.chocomaker.machine_gun.desc3"));
+        tooltip.add(Component.translatable("item.chocomaker.machine_gun.desc4"));
+        tooltip.add(Component.translatable("item.chocomaker.machine_gun.desc5"));
+        tooltip.add(Component.translatable("item.chocomaker.machine_gun.desc6"));
+        tooltip.add(Component.empty());
         tooltip.add(Component.translatable("item.chocomaker.machine_gun.energy", getEnergy(stack)));
         long beamCharge = getBeamCharge(stack);
         if (beamCharge > 0) {
@@ -492,6 +534,28 @@ public class MachineGunItem extends Item {
                     float scale = getFovScale(clientSneakTicks);
                     event.setNewFovModifier(event.getNewFovModifier() * scale);
                 }
+            }
+        }
+
+        /**
+         * 左键点击空气时：若潜行且满蓄力，发射穿透光束。
+         * LeftClickEmpty 仅客户端触发，通过 MachineGunFirePacket 通知服务端。
+         */
+        @SubscribeEvent
+        public static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+            Player player = event.getEntity();
+            if (!player.isCrouching()) return;
+
+            ItemStack stack = player.getMainHandItem();
+            if (!(stack.getItem() instanceof MachineGunItem)) return;
+
+            long beamCharge = getBeamCharge(stack);
+            if (beamCharge < MAX_BEAM_CHARGE) return;
+
+            // LeftClickEmpty 仅客户端触发，发送网络包到服务端执行
+            if (player.level().isClientSide) {
+                SCMNetwork.CHANNEL.sendToServer(new SCMNetwork.MachineGunFirePacket());
+                return;
             }
         }
 

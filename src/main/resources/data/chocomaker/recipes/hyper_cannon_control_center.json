@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    "E E",
+    "OOO"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:redstone_lamp"
+    },
+    "E": {
+      "item": "chocomaker:enchanted_golden_chocolate"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "chocomaker:hyper_cannon_control_center",
+    "count": 1
+  }
+}

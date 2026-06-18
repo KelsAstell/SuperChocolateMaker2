@@ -88,6 +88,12 @@ public class SCMNetwork {
                 .decoder(ChocolateMixerMixPacket::decode)
                 .consumerMainThread(ChocolateMixerMixPacket::handle)
                 .add();
+
+        CHANNEL.messageBuilder(MachineGunFirePacket.class, packetId++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(MachineGunFirePacket::encode)
+                .decoder(MachineGunFirePacket::decode)
+                .consumerMainThread(MachineGunFirePacket::handle)
+                .add();
     }
 
     public static class SetBeaconLevelPacket {
@@ -409,6 +415,38 @@ public class SCMNetwork {
                     mixerBE.tryMix();
                 }
             }
+        }
+    }
+
+    /**
+     * 客户端发送：请求发射可可机枪穿透光束（左键空气时）
+     */
+    public static class MachineGunFirePacket {
+        public MachineGunFirePacket() {
+        }
+
+        public static MachineGunFirePacket decode(FriendlyByteBuf buf) {
+            return new MachineGunFirePacket();
+        }
+
+        public void encode(FriendlyByteBuf buf) {
+        }
+
+        public void handle(Supplier<NetworkEvent.Context> ctx) {
+            ServerPlayer player = ctx.get().getSender();
+            if (player == null) return;
+
+            ItemStack stack = player.getMainHandItem();
+            if (!(stack.getItem() instanceof com.emowolf.scm.item.MachineGunItem)) return;
+
+            ctx.get().enqueueWork(() -> {
+                long beamCharge = com.emowolf.scm.item.MachineGunItem.getBeamCharge(stack);
+                if (beamCharge < com.emowolf.scm.item.MachineGunItem.MAX_BEAM_CHARGE) return;
+
+                com.emowolf.scm.item.MachineGunItem.fireBeam(player.level(), player, beamCharge, true);
+                com.emowolf.scm.item.MachineGunItem.setBeamCharge(stack, 0);
+                com.emowolf.scm.item.MachineGunItem.playBeamSound(player.level(), player);
+            });
         }
     }
 }
